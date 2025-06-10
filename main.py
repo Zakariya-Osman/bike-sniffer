@@ -1,3 +1,3 @@
-from scraping.kijiji_scraper import fetch_search_html
+from scraping.kijiji_scraper import with_range_fetch_search_html
 
-fetch_search_html("Calgary", "Bikes", 1)
+with_range_fetch_search_html("Calgary", "Bikes", min_page=1,max_page=3)
