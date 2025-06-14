@@ -257,7 +257,7 @@ def save_results(ads, page):
 
 
 
-
+################################### My old code ###################################
 # import datetime
 # import requests
 # import json
