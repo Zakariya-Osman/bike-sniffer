@@ -42,46 +42,85 @@ def parse_search_page(html):
             for item in data.get("itemListElement", []):
                 product = item.get("item", {})
                 ad_url = product.get("url")
-                posted_date = get_posted_date(ad_url)
+                posted_date, image_url = get_ad_details(ad_url)
 
                 if posted_date:
                     results.append({
                         "title": product.get("name"),
                         "price": product.get("offers", {}).get("price"),
                         "url": ad_url,
-                        "posted_date": posted_date  # keep as datetime
+                        "posted_date": posted_date,  # keep as datetime
+                        "image": image_url
                     })
         except Exception:
             continue
 
     return results
 
-
-def get_posted_date(ad_url):
-    # Fetches an individual ad page and extracts the posted date
+def get_ad_details(ad_url):
     html = fetch_html(ad_url)
     if not html:
-        return None
+        return None, None
     
     soup = BeautifulSoup(html, "html.parser")
+    posted_date = None
+    image_url = None
+
     for script in soup.find_all("script", {"type": "application/ld+json"}):
         try:
             data = json.loads(script.string)
-            if isinstance(data, dict) and "validFrom" in data:
-                return datetime.strptime(data["validFrom"][:10], "%Y-%m-%d")
+            if isinstance(data, dict):
+                if "validFrom" in data:
+                    posted_date = datetime.strptime(data["validFrom"][:10], "%Y-%m-%d")
+                if "image" in data:
+                    image_url = data["image"]
             elif isinstance(data, list):
                 for item in data:
-                    if isinstance(item, dict) and "validFrom" in item:
-                        return datetime.strptime(item["validFrom"][:10], "%Y-%m-%d")
-        except Exception:
+                    if isinstance(item, dict):
+                        if "validFrom" in item:
+                            posted_date = datetime.strptime(item["validFrom"][:10], "%Y-%m-%d")
+                        if "image" in item:
+                            image_url = item["image"]
+        except:
             continue
-    
-    # Fallback: regex
-    match = re.search(r'"validFrom"\s*:\s*"([^"]+)"', html)
-    if match:
-        return datetime.strptime(match.group(1)[:10], "%Y-%m-%d")
 
-    return None
+    if not posted_date:
+        match = re.search(r'"validFrom"\s*:\s*"([^"]+)"', html)
+        if match:
+            posted_date = datetime.strptime(match.group(1)[:10], "%Y-%m-%d")
+
+    if not image_url:
+        og_image = soup.find("meta", property="og:image")
+        if og_image:
+            image_url = og_image.get("content")
+
+    return posted_date, image_url
+
+# def get_posted_date(ad_url):
+#     # Fetches an individual ad page and extracts the posted date
+#     html = fetch_html(ad_url)
+#     if not html:
+#         return None
+    
+#     soup = BeautifulSoup(html, "html.parser")
+#     for script in soup.find_all("script", {"type": "application/ld+json"}):
+#         try:
+#             data = json.loads(script.string)
+#             if isinstance(data, dict) and "validFrom" in data:
+#                 return datetime.strptime(data["validFrom"][:10], "%Y-%m-%d")
+#             elif isinstance(data, list):
+#                 for item in data:
+#                     if isinstance(item, dict) and "validFrom" in item:
+#                         return datetime.strptime(item["validFrom"][:10], "%Y-%m-%d")
+#         except Exception:
+#             continue
+    
+#     # Fallback: regex
+#     match = re.search(r'"validFrom"\s*:\s*"([^"]+)"', html)
+#     if match:
+#         return datetime.strptime(match.group(1)[:10], "%Y-%m-%d")
+
+#     return None
 
 def save_results(ads, page):
     filename = f"data/cache/page-{page}-results.json"

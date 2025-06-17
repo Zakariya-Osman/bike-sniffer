@@ -3,7 +3,7 @@ from datetime import datetime
 import time
 
 # Define cutoff date
-SINCE_DATE = datetime.strptime("2025-06-12", "%Y-%m-%d") 
+SINCE_DATE = datetime.strptime("2025-06-17", "%Y-%m-%d") 
 
 def run_scraper():
     city = "calgary"
