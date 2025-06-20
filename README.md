@@ -3,35 +3,7 @@
 This project scrapes Kijiji listings, downloads images, and matches them based on specified criteria. It includes optional notifications via email and Discord.
 
 ## Project Structure
-.
-├── config.py
-├── data
-│   ├── cache
-│   │   ├── page-1-results.json
-│   │   └── page-2-results.json
-│   └── reference
-├── downloaded.png
-├── html.html
-├── images
-│   ├── downloaded
-│   ├── downloader.py
-│   └── matcher.py
-├── main.py
-├── notify
-│   ├── discord.py
-│   └── email.py
-├── README.md
-├── requirements.txt
-├── scraping
-│   ├── kijiji_scraper.py
-│   └── __pycache__
-│       └── kijiji_scraper.cpython-310.pyc
-├── storage
-│   ├── checked.json
-│   └── matches.json
-└── utils
-    ├── logger.py
-    └── utilities.py
+...
 
 ## Setup
 
